@@ -494,6 +494,46 @@ path_cat(
 	return result;
 }
 
+
+bool url_decode(const std::string& in, std::string& out)
+{
+	out.clear();
+	out.reserve(in.size());
+	for (std::size_t i = 0; i < in.size(); ++i)
+	{
+		if (in[i] == '%')
+		{
+			if (i + 3 <= in.size())
+			{
+				int value = 0;
+				std::istringstream is(in.substr(i + 1, 2));
+				if (is >> std::hex >> value)
+				{
+					out += static_cast<char>(value);
+					i += 2;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if (in[i] == '+')
+		{
+			out += ' ';
+		}
+		else
+		{
+			out += in[i];
+		}
+	}
+	return true;
+}
+
 // This function produces an HTTP response for the given
 // request. The type of the response object depends on the
 // contents of the request, so the interface requires the
@@ -712,77 +752,93 @@ template<
 	if (start != std::string::npos)
 	{
 		start += 6;
-		std::string url = target.substr(start);
-
-		boost::regex regex("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
-		boost::cmatch what;
-		if (regex_match(url.c_str(), what, regex))
+		std::string url_encoded = target.substr(start);
+		size_t nextparam = url_encoded.find("&");
+		if (nextparam != std::string::npos)
 		{
-			std::string protocol = std::string(what[1].first, what[1].second);
-			std::string domain = std::string(what[2].first, what[2].second);
-			std::string port = std::string(what[3].first, what[3].second);
-			std::string path = std::string(what[4].first, what[4].second);
-			std::string query = std::string(what[5].first, what[5].second);
-			std::string fragment = std::string(what[6].first, what[6].second);
-
-			//std::cout << "protocol: " << protocol << "\r\n";
-			//std::cout << "domain:   " << domain << "\r\n";
-			//std::cout << "port:     " << port << "\r\n";
-			//std::cout << "path:     " << path << "\r\n";
-			//std::cout << "query:    " << query << "\r\n";
-			//std::cout << "fragment: " << fragment << "\r\n"; // TODO: improve get_web_page(...) urls variation handling
-
-			if (path != "")
+			url_encoded = url_encoded.substr(0, nextparam);
+		}
+		std::string url;
+		if (url_decode(url_encoded, url))
+		{
+			boost::regex regex("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
+			boost::cmatch what;
+			if (regex_match(url.c_str(), what, regex))
 			{
-				path = path.substr(1); // format for get_web_page(...) function
-			}
+				std::string protocol = std::string(what[1].first, what[1].second);
+				std::string domain = std::string(what[2].first, what[2].second);
+				std::string port = std::string(what[3].first, what[3].second);
+				std::string path = std::string(what[4].first, what[4].second);
+				std::string query = std::string(what[5].first, what[5].second);
+				std::string fragment = std::string(what[6].first, what[6].second);
 
-			std::string page_source;
-			long long duration;
-			std::string fetch_time;						 //get_web_page("https", "colnect.com", "en");
-			std::tie(page_source, duration, fetch_time) = get_web_page(protocol, domain, path);
-			std::string resporce = ""; 
+				//std::cout << "protocol: " << protocol << "\r\n";
+				//std::cout << "domain:   " << domain << "\r\n";
+				//std::cout << "port:     " << port << "\r\n";
+				//std::cout << "path:     " << path << "\r\n";
+				//std::cout << "query:    " << query << "\r\n";
+				//std::cout << "fragment: " << fragment << "\r\n"; // TODO: improve get_web_page(...) urls variation handling
 
-			//-------
-			// constructing json
-			ptree result; // TODO: add adequate res str formatting, optimize json construction, return appropriate variables from get_web_page(...) right away
-			result.put("requested_uri", url);
-			result.put("duration_ms", duration);
-			result.put("fetch_time_UTC", fetch_time);
-			if (page_source != "")
-			{
-				boost::regex regex1("^$");
-				boost::smatch what1;
-				if (boost::regex_search(page_source, what1, regex1))
+				if (path != "")
 				{
-					std::string header = std::string(page_source.cbegin(), what1[0].first);
-					std::string content = std::string(what1[0].second, page_source.cend());
-					result.put("header", header);
-					result.put("content", content);
-					result.put("status", "ok");
+					path = path.substr(1); // format for get_web_page(...) function
+				}
+
+				std::string page_source;
+				long long duration;
+				std::string fetch_time;						 //get_web_page("https", "colnect.com", "en");
+				std::tie(page_source, duration, fetch_time) = get_web_page(protocol, domain, path);
+				std::string resporce = "";
+
+				//-------
+				// constructing json
+				ptree result; // TODO: add adequate res str formatting, optimize json construction, return appropriate variables from get_web_page(...) right away
+				result.put("requested_uri", url);
+				result.put("duration_ms", duration);
+				result.put("fetch_time_UTC", fetch_time);
+				if (page_source != "")
+				{
+					boost::regex regex1("^$");
+					boost::smatch what1;
+					if (boost::regex_search(page_source, what1, regex1))
+					{
+						std::string header = std::string(page_source.cbegin(), what1[0].first);
+						std::string content = std::string(what1[0].second, page_source.cend());
+						result.put("header", header);
+						result.put("content", content);
+						result.put("status", "ok");
+						std::stringstream ss;
+						boost::property_tree::json_parser::write_json(ss, result);
+						res.body() = ss.str();
+					}
+				}
+				else
+				{
+					result.put("status", "empty responce"); // TODO: endure invalid status responce chunks like this into a sepparate function
 					std::stringstream ss;
 					boost::property_tree::json_parser::write_json(ss, result);
 					res.body() = ss.str();
 				}
+
+				//-------
+
+				//resporce += page_source + "\r\n\r\n" + std::to_string(duration) + "ms\r\n\r\n" + fetch_time;
+				//res.body() = resporce;
+
 			}
 			else
 			{
-				result.put("status", "empty responce");
+				ptree result;
+				result.put("status", "invalid url");
 				std::stringstream ss;
 				boost::property_tree::json_parser::write_json(ss, result);
 				res.body() = ss.str();
 			}
-			
-			//-------
-
-			//resporce += page_source + "\r\n\r\n" + std::to_string(duration) + "ms\r\n\r\n" + fetch_time;
-			//res.body() = resporce;
-			
 		}
 		else
 		{
 			ptree result;
-			result.put("status", "invalid url");
+			result.put("status", "can't decode url");
 			std::stringstream ss;
 			boost::property_tree::json_parser::write_json(ss, result);
 			res.body() = ss.str();
