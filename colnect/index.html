@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="HTML Element Counter" name="description">
+<title>HTML Element Counter</title>
+<style>
+/* TAGS */
+* {
+	margin: 0;
+}
+body {
+	margin: 0;
+	padding: 10px;
+	font-family: Verdana, sans-serif;
+	font-size: 14px;
+	background-color: #eeead6;
+}
+h1 {
+	margin: 0;
+	padding: 0;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align: left;
+	font-size: 20px;
+	font-weight: normal;
+	color: #9933cc;
+}
+h3 {
+	padding: 0;
+	margin: 0;
+	font-size: 16px;
+	font-weight: bold;
+}
+/* MARKERS */
+ul {
+	margin: 0px;
+    margin-top: 4px;
+	padding: 5px 0 16px 20px;
+	list-style-position: outside;
+	list-style-image: url('data:image/gif;base64,R0lGODlhBwAOAIAAAP9oAf///yH5BAEAAAEALAAAAAAHAA4AAAIQjI+py40AAjxzmhqxzNGlAgA7');
+}
+ul li {
+	line-height: 24px;
+    color: #6b4702;
+    margin: 0px;
+	padding: 0px;
+}
+/* COMMON */
+.cb {
+	clear: both;
+}
+.f_l {
+	float: left;
+}
+.f_r {
+	float: right;
+}
+.display_none {
+	display: none !important;
+}
+.content_submain_box {
+	position: relative;
+	margin-top: 8px;
+	padding: 10px 20px;
+	border-radius: 2px;
+	background-color: #ffffff;
+	display: inline-block;
+	text-align: left;
+	border: 1px solid #999999;
+}
+.output_h3 {
+	color: #0078d7;
+}
+.result_box_padding {
+	padding-top: 14px;
+	padding-bottom: 0;
+
+}
+.word_break_all{
+    display: inline-block;
+    word-break: break-all;
+}
+.content_submain_box_1 {
+	margin-top: 8px;
+	padding: 10px 20px;
+	border: 1px solid #d4d4d4;
+	border-radius: 2px;
+	background-color: #f0f0f0;
+}
+.client_form_table {
+	width: 100%;
+	border-width: 0;
+	padding: 0;
+	margin: 0;
+	border-collapse: collapse;
+}
+.client_form_table td {
+	padding: 0;
+	margin: 0;
+	vertical-align: top;
+}
+.client_form_table tr td:first-child {
+	padding-top: 5px;
+}
+.client_form_table .remember_me {
+	padding-top: 0;
+	padding-bottom: 10px;
+}
+.client_form_table tr:last-child td:first-child {
+	padding-top: 0;
+}
+.client_input {
+	width: 150px;
+	height: 28px;
+	margin: 0 0 10px 15px;
+	padding: 0;
+	padding-left: 10px;
+	padding-right: 10px;
+	border: 1px solid #ada9a9;
+	border-radius: 3px;
+	background-color: #ffffff;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+.apply_button {
+	display: inline-block;
+	padding: 5px 17px;
+	background-color: #ee6216;
+	color: #ffffff;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	-webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.3);
+	box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.3);
+	cursor: pointer;
+}
+.apply_button:hover {
+	background-color: #ffffff;
+	color: #ee4816;
+	border: 1px solid #ada9a9;
+}
+.apply_button:active {
+	position: relative;
+	left: 1px;
+	top: 1px;
+}
+.message_td {
+	padding-top: 10px !important;
+	color: #ff0000;
+}
+.submit_reset_input {
+	position: absolute;
+	left: -999999999999px;
+	top: -999999999999px;
+}
+.loading_box {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	border-width: 0;
+	background: url(data:image/gif;base64,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) no-repeat 50% 50% rgba(255,255,255,0.65);
+}
+.loading_box {
+	display: none;
+}
+body.loading .loading_box {
+	display: table;
+}
+@media screen and (max-width: 400px){
+	.client_form_table td {
+		display: block;
+	}
+    .client_input {
+        margin-left: 0;
+    }
+}
+</style>
+</head>
+<body>
+<h1>HTML Element Counter</h1>
+<!-- input_box -->
+<div class="content_submain_box">
+  <h3>Data input</h3>
+  <form id="login_form" action="javascript: document.getElementById('check_login').click();">
+    <div class="content_submain_box_1">
+      <table class="client_form_table">
+        <tbody>
+          <tr>
+            <td>URL of web page:</td>
+            <td><input id="url_to_the_check_page_input" class="client_input" type="text" value=""></td>
+          </tr>
+          <tr>
+            <td>Name of HTML element to check:</td>
+            <td><input id="html_element_name_input" class="client_input" type="text" value=""></td>
+          </tr>
+          <tr>
+            <td colspan="2"><a id="check_login" href="javascript: htmlElementCounterApi.runHtmlElementCounter();" class="apply_button f_l">Submit</a> <a id="close_login" href="javascript: document.getElementById('reset_input').click(); htmlElementCounterApi.hideErrorMessages();" class="apply_button f_r">Reset</a>
+              <input id="reset_input" name="reset" type="reset" class="submit_reset_input"></td>
+          </tr>
+          <tr id="all_fields_are_required_message" class="display_none">
+            <td colspan="2" class="message_td">All fields are required</td>
+          </tr>
+          <tr id="invalid_url_message" class="display_none">
+            <td colspan="2" class="message_td">Invalid url</td>
+          </tr>
+          <tr id="invalid_html_element_name_message" class="display_none">
+            <td colspan="2" class="message_td">Invalid html element name</td>
+          </tr>
+          <tr id="inaccessible_url_message" class="display_none">
+            <td colspan="2" class="message_td">Inaccessible URL</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <input type="submit" class="submit_reset_input">
+  </form>
+</div>
+<!-- /input_box --> 
+<div class="cb"></div>
+<!-- output_box -->
+<div id="result_box_id" class="content_submain_box result_box_padding display_none">
+  <h3 class="output_h3">Request results</h3>
+    <ul>
+        <li>URL <strong id="web_page_url_id" class="word_break_all">...://.../...</strong> Fetched on <strong id="fetch_time_id">dd/mm/YYYY HH:ii:ss</strong>, took <strong id="duration_ms_id">..</strong> msec</li>
+        <li>Element &lt;<strong id="html_element_name_id_0">..</strong>&gt; appeared <strong id="count_of_html_elements_id">..</strong> times in page</li>
+    </ul> 
+    <h3 class="output_h3">General Statistics</h3>
+    <ul>
+        <li><strong id="count_of_checked_urls_from_that_domain_id">..</strong> different <strong>URLs</strong> from <strong id="domain_id_0">...com</strong> have been fetched</li>
+        <li>Average fetch time from <strong id="domain_id_1">...com</strong> during the last <strong>24</strong> hours hours is <strong id="average_page_fetch_time_from_that_domain_during_the_last_24_hours_id">..</strong> ms</li>
+        <li>There was a total of <strong id="total_count_of_this_element_from_this_domain_id">..</strong> &lt;<strong id="html_element_name_id_1">..</strong>&gt; elements from <strong id="domain_id_2">...com</strong></li>
+        <li>Total of <strong id="total_count_of_this_element_from_all_requests_ever_made_id">..</strong> &lt;<strong id="html_element_name_id_2">..</strong>&gt; elements counted in all requests ever made</li>
+    </ul>
+</div>
+<!-- /output_box -->     
+<div class="loading_box"></div>
+<script src="js/js.js"></script>
+</body>
+</html>

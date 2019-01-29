@@ -1,0 +1,85 @@
+
+Free hostings cannot fetch some https pages, changing preferences of local Denwer didn't solve the problem so i decided to write my own server. (You can consider using third-party services like http://www.whwhatorigin.org/ (this server does not have the full functionality I need)).
+
+--
+If your OS is not Windows 10, you'll need to recompile it for the target OS.
+
+Project uses some dependensies:
+
+1) OpenSSL for https access. ( OpenSSL 1.1.1a )
+2) BOOST for crossplatform network api. ( boost_1_68_0 )
+
+You'll be needed to compile them and then link against this libraries (see #include <...> directives, libs are in the root of the project). Full compilation time on the modern PC is about 3 hours. If you want, i can give you my whole, configured project. I used Visual studio. Project is 3.98 GB. Release executable is just 2.79 MB. 
+
+Now i send to you only main HTMLFetchUtilityServer.cpp file with my server logic.
+
+Signature of the interesting function here
+-------
+// This function produces an HTTP response for the given
+// request. The type of the response object depends on the
+// contents of the request, so the interface requires the
+// caller to pass a generic lambda for receiving the response.
+template<
+	class Body, class Allocator,
+	class Send>
+	void
+	handle_request(
+		beast::string_view doc_root,
+		http::request<Body, http::basic_fields<Allocator>>&& req,
+		Send&& send)
+{
+----------
+The body of this function is like the body of .php file. Consider it is an entry point. But instead of echo smth. You should return smth. And the language is c++.
+
+--
+
+My OS is Windows 10 so i have already downloaded and compiled all dependencies.
+
+Also the plus of this approach is that you can emulate some browsers, even cookies. Especially one with open source code like firefox.
+
+
+Server is production ready. You can choose number of threads to spawn. It performs very well under the heavy requests load.
+If you have a public IP, you can try to send a request to the server and the server will reply.
+
+
+Usage example:
+
+1) Open cmd.
+	Win+R -> cmd -> Enter
+2) Go to executable directory
+	cd C:\Users\root\source\repos\HTMLFetchUtilityServer\x64\Release
+3) Start the server
+  Example:
+	-----------
+	Microsoft Windows [Version 10.0.17134.523]
+(c) Корпорация Майкрософт (Microsoft Corporation), 2018. Все права защищены.
+
+C:\Users\root>cd C:\Users\root\source\repos\HTMLFetchUtilityServer\x64\Release
+
+C:\Users\root\source\repos\HTMLFetchUtilityServer\x64\Release>HTMLFetchUtilityServer
+Usage: HTMLFetchUtilityServer <address> <port> <doc_root> <threads>
+Example:
+    HTMLFetchUtilityServer 127.0.0.1 777 . 1
+
+C:\Users\root\source\repos\HTMLFetchUtilityServer\x64\Release>HTMLFetchUtilityServer 127.0.0.1 777 . 1
+^C
+C:\Users\root\source\repos\HTMLFetchUtilityServer\x64\Release>HTMLFetchUtilityServer 127.0.0.1 777 . 8
+
+	----------
+4) Press Ctrl+C to stop the server of just close the console.
+
+--
+
+P.S.: if you see 
+
+Error: stream truncated
+
+This means that the other side did not properly closed SSL connection. It's popular. For example google says that it is just faster. But anyway, i handle this.
+
+------------------------------
+
+
+
+
+
+
